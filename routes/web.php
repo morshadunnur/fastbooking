@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::inertia('home', 'Welcome');
-Route::get('/', function () {
-    return view('welcome');
+Route::group(['middleware' => 'auth'], function()  {
+    Route::inertia('home', 'Welcome');
+    Route::get('/', function () {
+        return view('welcome');
+    });
 });
