@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Category\CategoryController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'auth'], function()  {
     Route::inertia('home', 'Welcome');
     Route::get('/', function () {
-        return view('welcome');
+        return Inertia::render('welcome');
     });
+    Route::get('categories', [CategoryController::class, 'index'])->name('category.page');
+    Route::post('categories', [CategoryController::class, 'store'])->name('category.store');
 });
