@@ -6,6 +6,7 @@
                     Category Name
                 </label>
                 <input class="shadow appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" v-model="category.name" placeholder="Jane">
+                <p>{{ $page.props.errors.name }}</p>
             </div>
         </div>
         <div class="flex flex-wrap mb-6">
@@ -22,7 +23,8 @@ export default {
             sending: false,
             category: {
                 name: ''
-            }
+            },
+
         }
     },
     methods: {
@@ -31,12 +33,36 @@ export default {
                 name: this.category.name,
             }
             this.$inertia.post(this.route('category.store'), data, {
-                onStart: () => this.sending = true,
+                onBefore: (visit) => {
+                    if (!confirm('Are you sure to create category?')){
+                        this.category.name = '';
+                    }
+                },
+                onStart: (visit) => {
+                    this.sending = true
+                },
+                onProgress: (progress) => {},
+                onSuccess: (page) => {},
+                onError: (errors) => {
+                    console.log(errors)
+                },
+                onCancel: () => {},
                 onFinish: () => {
                     this.sending = false;
                     this.category.name = '';
                 },
             });
+            // this.sending = true;
+            // axios.post(this.route('category.store'), data)
+            // .then(response => {
+            //     if (response.status === 200){
+            //         this.sending = false;
+            //         this.category.name = '';
+            //     }
+            // })
+            // .catch(error => {
+            //     this.sending = false;
+            // })
 
         }
     }

@@ -11,6 +11,9 @@
                 <div class="w-1/2 bg-gray-200 p-5">
                     <CreateCategory/>
                 </div>
+                <div class="w-1/2 bg-gray-200 p-5">
+                    <CategoryList :categories="$page.props.categories"/>
+                </div>
             </div>
         </template>
     </dashboard-layout>
@@ -21,9 +24,11 @@ import DashboardLayout from "../Layouts/DashboardLayout";
 import HeaderNav from "../../Components/Partials/HeaderNav";
 import Sidebar from "../../Components/Partials/Sidebar";
 import CreateCategory from "../../Components/Category/CreateCategory";
+import CategoryList from "../../Components/Category/CategoryList";
 export default {
-name: "Index",
-    components: {CreateCategory, Sidebar, HeaderNav, DashboardLayout}
+    name: "Index",
+    components: {CategoryList, CreateCategory, Sidebar, HeaderNav, DashboardLayout},
+
 }
 </script>
 

@@ -10,6 +10,27 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/resources/js/Components/Category/CategoryList.vue">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/resources/js/Components/Category/CreateCategory.vue">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/resources/js/Pages/Category/Index.vue">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/resources/js/Pages/Layouts/DashboardLayout.vue">
           <value>
             <Attribute>
