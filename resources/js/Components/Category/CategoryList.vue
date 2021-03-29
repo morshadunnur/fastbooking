@@ -10,7 +10,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(category, index) in categoryList" :key="index">
+                <tr v-for="(category, index) in categories" :key="index">
                     <td>{{ ++index }}</td>
                     <td>{{ category.name }}</td>
                     <td v-if="category.status === 1">Published</td>

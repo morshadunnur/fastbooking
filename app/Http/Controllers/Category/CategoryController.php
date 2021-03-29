@@ -13,16 +13,12 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::whereNull('parent_id')->get();
-        return Inertia::render('Category/Index', [
-            'categories' => $categories
-        ]);
+//        $categories = Category::whereNull('parent_id')->get();
+        return Inertia::render('Category/Index');
     }
 
     public function store(Request $request)
     {
-
-
         try {
             $data = $this->validate($request, [
                 'name' => 'required|string|max:255'
@@ -30,15 +26,10 @@ class CategoryController extends Controller
             Category::create([
                 'name' => $data['name']
             ]);
-            $categories = Category::whereNull('parent_id')->get();
-            return Inertia::render('Category/Index', [
-                'categories' => $categories
-            ]);
-//            return response()->json('Category created', 200);
+            return response()->json('Category created', 200);
         }catch (ValidationException $exception){
-            return Inertia::render('Category/Index', [
-                'errors' => $exception->errors()
-            ]);
+
+            return response()->json($exception->errors(), 422);
         }
         catch (QueryException|\Exception $ex){
             return response()->json([], 406);
@@ -58,5 +49,11 @@ class CategoryController extends Controller
         return Inertia::render('Category/Index', [
             'categories' => $categories
         ]);
+    }
+
+    public function allCategory()
+    {
+        $categories = Category::whereNull('parent_id')->get();
+        return response()->json($categories, 200);
     }
 }
