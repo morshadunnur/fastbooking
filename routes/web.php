@@ -24,6 +24,7 @@ Route::group(['middleware' => 'auth'], function()  {
     Route::post('categories', [CategoryController::class, 'store'])->name('category.store');
     Route::patch('categories/{id}', [CategoryController::class, 'update'])->name('category.update');
     Route::delete('categories/{id}', [CategoryController::class, 'delete'])->name('category.delete');
+    Route::post('selected-delete', [CategoryController::class, 'selectedDelete'])->name('category.delete.all');
 
     // DATA Routes
     Route::get('category-list', [CategoryController::class, 'allCategory'])->name('category.list.data');

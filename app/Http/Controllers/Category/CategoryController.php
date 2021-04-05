@@ -11,10 +11,11 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
-    public function index()
+
+    public function index(Inertia $inertia)
     {
 //        $categories = Category::whereNull('parent_id')->get();
-        return Inertia::render('Category/Index');
+        return $inertia::render('Category/Index');
     }
 
     public function store(Request $request)
@@ -36,19 +37,55 @@ class CategoryController extends Controller
         }
     }
 
-    public function update(Request $id)
+    public function update(Request $request, $id)
     {
-
+        try {
+            $data = $this->validate($request, [
+                'name' => 'required|string|max:255'
+            ]);
+            $category = Category::find($id);
+            $category->update([
+                'name' => $data['name']
+            ]);
+            return response()->json('success', 204);
+        }catch (ValidationException $exception){
+            return response()->json($exception->errors(), 422);
+        }catch (QueryException|\Exception $exception){
+            return response()->json('Something went wrong', 406);
+        }
     }
 
     public function delete($id)
     {
-        $category = Category::find($id);
-        $category->destroy($id);
-        $categories = Category::whereNull('parent_id')->get();
-        return Inertia::render('Category/Index', [
-            'categories' => $categories
-        ]);
+        try{
+            $category = Category::find($id);
+            $category->destroy($id);
+            return response()->json('Category Deleted', 200);
+        }catch (QueryException|\Exception $exception){
+            return response()->json([
+                'code' => $exception->getCode(),
+                'message' => $exception->getMessage(),
+                'line' => $exception->getLine()
+            ], 406);
+        }
+    }
+
+    public function selectedDelete(Request $request)
+    {
+        try{
+            $data = $this->validate($request, [
+               'ids' => 'required|array',
+               'ids.*' => 'required|exists:categories,id'
+            ]);
+            Category::whereIn('id', $data['ids'])->delete();
+            return response()->json('Category Deleted', 200);
+        }catch (QueryException|\Exception $exception){
+            return response()->json([
+                'code' => $exception->getCode(),
+                'message' => $exception->getMessage(),
+                'line' => $exception->getLine()
+            ], 406);
+        }
     }
 
     public function allCategory()

@@ -12,7 +12,7 @@
                     <CreateCategory @loadCategory="getCategories"/>
                 </div>
                 <div class="w-1/2 bg-gray-200 p-5">
-                    <CategoryList :categories="categories" />
+                    <CategoryList :categories="categories" @loadCategory="getCategories"/>
                 </div>
             </div>
         </template>
