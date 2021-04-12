@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\TourPackageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -25,6 +26,9 @@ Route::group(['middleware' => 'auth'], function()  {
     Route::patch('categories/{id}', [CategoryController::class, 'update'])->name('category.update');
     Route::delete('categories/{id}', [CategoryController::class, 'delete'])->name('category.delete');
     Route::post('selected-delete', [CategoryController::class, 'selectedDelete'])->name('category.delete.all');
+
+    Route::get('tour-package', [TourPackageController::class, 'index'])->name('tour.package.page');
+    Route::post('tour-package', [TourPackageController::class, 'store'])->name('tour.package.store');
 
     // DATA Routes
     Route::get('category-list', [CategoryController::class, 'allCategory'])->name('category.list.data');
