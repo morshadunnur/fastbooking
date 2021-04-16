@@ -31177,6 +31177,44 @@ video {
           animation: bounce 1s infinite;
 }
 
+.fastbooking-input {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  --tw-bg-opacity: 1;
+  background-color: rgba(229, 231, 235, var(--tw-bg-opacity));
+}
+
+.fastbooking-input:focus {
+  --tw-bg-opacity: 1;
+  background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
+}
+
+.fastbooking-input {
+  border-radius: 0.25rem;
+  border-width: 1px;
+  display: block;
+  line-height: 1.25;
+  margin-bottom: 0.75rem;
+}
+
+.fastbooking-input:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.fastbooking-input {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  --tw-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-text-opacity: 1;
+  color: rgba(55, 65, 81, var(--tw-text-opacity));
+  width: 100%;
+}
+
 @media (min-width: 640px) {
   .sm\:container {
     width: 100%;

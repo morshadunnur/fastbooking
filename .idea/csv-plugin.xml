@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/resources/js/Components/Tourpackage/CreatePackage.vue">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/resources/js/Pages/Category/Index.vue">
           <value>
             <Attribute>

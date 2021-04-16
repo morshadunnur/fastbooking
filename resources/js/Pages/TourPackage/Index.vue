@@ -9,11 +9,13 @@
         <template #main-content>
             <div class="main-content flex-1 bg-gray-100 mt-12 md:mt-2 pb-24 md:pb-5">
                 <div class="w-full bg-gray-200 p-5" v-if="showCreateForm">
-
+                    <div class="flex justify-end items-center">
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" @click="changeFormVisibility">Package List</button>
+                    </div>
                     <CreatePackage/>
                 </div>
                 <div class="w-full bg-green-100-200 p-5" v-if="showPackageList">
-                    <div class="flex">
+                    <div class="flex justify-between items-center">
                         <h5>Package List</h5>
                         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" @click="changeFormVisibility">Create Package</button>
                     </div>
@@ -42,8 +44,8 @@ export default {
     },
     methods: {
         changeFormVisibility(){
-            this.showCreateForm = true;
-            this.showPackageList = false;
+            this.showCreateForm = !this.showCreateForm;
+            this.showPackageList = !this.showPackageList;
         }
     }
 }
