@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TourPackage;
+use App\Traits\UploadFile;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -11,6 +12,7 @@ use Inertia\Response;
 
 class TourPackageController extends Controller
 {
+    use UploadFile;
     /**
      * @return Response
      */
@@ -27,7 +29,16 @@ class TourPackageController extends Controller
                 'place_name'    => 'required|string|max:255',
                 'duration'      => 'required|string|max:255',
                 'description'   => 'nullable|string',
-                'category_id'   => 'required|integer|exists:categories,id'
+                'category_id'   => 'required|integer|exists:categories,id',
+                'feature_image' => ['required', 'image', 'mimes:jpg,jpeg,png,svg', 'max:12048'],
+                'gallery_images' => ['nullable', 'array', 'max:20', function($attribute, $value, $fail) use($request){
+                    if (!$request->file('gallery_images')){
+                        $fail('Allow only file type');
+                    }
+                }],
+//                'gallery_images.*' => ['image', ]  array multiple datat type validation
+
+
             ]);
             TourPackage::create([
                 'category_id' => $data['category_id'],

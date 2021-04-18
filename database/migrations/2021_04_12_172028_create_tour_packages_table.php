@@ -19,6 +19,8 @@ class CreateTourPackagesTable extends Migration
             $table->string('title')->index();
             $table->string('place_name');
             $table->string('duration');
+            $table->string('feature_image')->nullable();
+            $table->json('gallery')->nullable();
             $table->string('descriptions')->nullable();
             $table->timestamps();
         });
