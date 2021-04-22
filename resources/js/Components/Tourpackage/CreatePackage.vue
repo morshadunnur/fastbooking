@@ -117,7 +117,16 @@ export default {
         createNewTourPackage() {
             this.sending = true;
             let formData = new FormData();
-            // data append for submit
+            formData.append('package_title', this.createForm.package_title);
+            formData.append('place_name', this.createForm.place_name);
+            formData.append('duration', this.createForm.duration);
+            formData.append('description', this.createForm.description);
+            formData.append('category_id', this.createForm.category_id);
+            formData.append('feature_image', this.createForm.feature_image);
+            for(let gallery of this.createForm.gallery_images){
+                formData.append('gallery_images[]', gallery);
+            }
+
             axios.post(this.route('tour.package.store'), formData)
                 .then(response => {
                     if (response.status === 200) {
@@ -136,6 +145,8 @@ export default {
                 duration: '',
                 description: '',
                 category_id: '',
+                feature_image: '',
+                gallery_images: [],
             }
         },
         setFeatureImage(event) {
