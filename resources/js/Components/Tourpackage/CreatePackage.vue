@@ -37,7 +37,7 @@
                             Feature Image
                         </label>
                         <input class="fastbooking-input" id="feature_image" type="file" accept="image/*"
-                               @change.prevent="setFeatureImage">
+                               @change.prevent="setFeatureImage" :key="featureImage">
 
                     </div>
                     <div class="w-full px-3 mb-6 md:mb-0">
@@ -45,7 +45,7 @@
                             Gallery Images
                         </label>
                         <input class="fastbooking-input" id="gallery_images" type="file" accept="image/*" multiple
-                               @change.prevent="setGalleryImages">
+                               @change.prevent="setGalleryImages" :key="galleryImage">
 
                     </div>
                 </div>
@@ -98,7 +98,10 @@ export default {
                 category_id: '',
                 feature_image: '',
                 gallery_images: [],
-            }
+            },
+            galleryImage: 0,
+            featureImage: 0,
+
         }
     },
     methods: {
@@ -127,11 +130,15 @@ export default {
                 formData.append('gallery_images[]', gallery);
             }
 
+            this.featureImage++;
+            this.galleryImage++;
+
             axios.post(this.route('tour.package.store'), formData)
                 .then(response => {
                     if (response.status === 200) {
                         this.sending = false;
                         this.setDefaultCreateForm();
+                        this.$emit('loadPackages')
                     }
                 })
                 .catch(error => {
@@ -148,6 +155,8 @@ export default {
                 feature_image: '',
                 gallery_images: [],
             }
+            this.featureImage = 0;
+            this.galleryImage = 0;
         },
         setFeatureImage(event) {
             this.createForm.feature_image = event.target.files[0];

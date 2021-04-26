@@ -10,16 +10,22 @@
             <div class="main-content flex-1 bg-gray-100 mt-12 md:mt-2 pb-24 md:pb-5">
                 <div class="w-full bg-gray-200 p-5" v-if="showCreateForm">
                     <div class="flex justify-end items-center">
-                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" @click="changeFormVisibility">Package List</button>
+                        <button
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                            @click="changeFormVisibility">Package List
+                        </button>
                     </div>
-                    <CreatePackage/>
+                    <CreatePackage @loadPackages="getPackages"/>
                 </div>
                 <div class="w-full bg-green-100-200 p-5" v-if="showPackageList">
                     <div class="flex justify-between items-center">
                         <h5>Package List</h5>
-                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" @click="changeFormVisibility">Create Package</button>
+                        <button
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                            @click="changeFormVisibility">Create Package
+                        </button>
                     </div>
-                    <PackageList/>
+                    <PackageList :packages="packages" @loadPackages="getPackages"/>
                 </div>
 
             </div>
@@ -33,20 +39,37 @@ import HeaderNav from "../../Components/Partials/HeaderNav";
 import Sidebar from "../../Components/Partials/Sidebar";
 import CreatePackage from "../../Components/Tourpackage/CreatePackage";
 import PackageList from "../../Components/Tourpackage/PackageList";
+
 export default {
     name: "Index",
     components: {PackageList, CreatePackage, Sidebar, HeaderNav, DashboardLayout},
-    data(){
+    data() {
         return {
             showCreateForm: false,
             showPackageList: true,
+            packages: [],
         }
     },
     methods: {
-        changeFormVisibility(){
+        changeFormVisibility() {
             this.showCreateForm = !this.showCreateForm;
             this.showPackageList = !this.showPackageList;
+        },
+        getPackages() {
+            axios.get(this.route('tour.package.data'))
+                .then(response => {
+                    if (response.status === 200) {
+                        console.log(response.data);
+                        this.packages = response.data.packages;
+                    }
+                })
+                .catch(error => {
+                    console.log(error.message);
+                })
         }
+    },
+    created() {
+        this.getPackages();
     }
 }
 </script>

@@ -32,4 +32,5 @@ Route::group(['middleware' => 'auth'], function()  {
 
     // DATA Routes
     Route::get('category-list', [CategoryController::class, 'allCategory'])->name('category.list.data');
+    Route::get('tour-package-list', [TourPackageController::class, 'allTourPackage'])->name('tour.package.data');
 });

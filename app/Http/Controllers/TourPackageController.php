@@ -73,4 +73,29 @@ class TourPackageController extends Controller
             return response()->json('Something went wrong!', 406);
         }
     }
+
+    public function allTourPackage()
+    {
+        try {
+            $selected_fields = [
+                'id', 'category_id', 'place_name', 'duration', 'feature_image', 'gallery', 'descriptions', 'title'
+            ];
+
+            $tour_packages = TourPackage::select($selected_fields)
+                ->with(['category' => function($category){
+                    $category->select('id', 'name');
+                }])
+                ->orderBy('place_name', 'asc')
+                ->get();
+
+            return response()->json([
+                'packages' => $tour_packages
+            ], 200);
+        }catch (QueryException|\Exception $e){
+            dd($e->getMessage());
+            return response()->json('Something went wrong!', 406);
+        }
+
+
+    }
 }
