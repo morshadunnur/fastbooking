@@ -82,7 +82,7 @@ class TourPackageController extends Controller
             ];
 
             $tour_packages = TourPackage::select($selected_fields)
-                ->with(['category' => function($category){
+                ->with(['category' => function ($category) {
                     $category->select('id', 'name');
                 }])
                 ->orderBy('place_name', 'asc')
@@ -91,11 +91,39 @@ class TourPackageController extends Controller
             return response()->json([
                 'packages' => $tour_packages
             ], 200);
-        }catch (QueryException|\Exception $e){
+        } catch (QueryException | \Exception $e) {
             dd($e->getMessage());
             return response()->json('Something went wrong!', 406);
         }
 
 
+    }
+
+    public function update(Request $request)
+    {
+        try {
+            $validated   = $this->validate($request, [
+                'package_id'    => 'required|integer|exists:tour_packages,id',
+                'package_title' => 'required|string|max:255',
+                'place_name'    => 'required|string|max:255',
+                'duration'      => 'required|string|max:255',
+                'descriptions'  => 'nullable|string',
+                'category_id'   => 'required|integer|exists:categories,id',
+            ]);
+            $tourPackage = TourPackage::find($validated['package_id']);
+            $tourPackage->update([
+                'title'        => $validated['package_title'],
+                'place_name'   => $validated['place_name'],
+                'duration'     => $validated['duration'],
+                'descriptions' => $validated['descriptions'],
+                'category_id'  => $validated['category_id']
+            ]);
+            return response()->json('update successful', 204);
+        } catch (ValidationException $e) {
+            return response()->json($e->errors(), 422);
+        } catch (QueryException | \Exception $e) {
+            dd($e->getMessage());
+            return response()->json('Something went wrong', 406);
+        }
     }
 }

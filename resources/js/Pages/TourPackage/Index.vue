@@ -36,7 +36,7 @@
                             @click="changeFormVisibility">Package List
                         </button>
                     </div>
-                    <EditPackage/>
+                    <EditPackage :editPackageData="editPackageData"/>
                 </div>
 
 
@@ -62,6 +62,7 @@ export default {
             showPackageList: true,
             showEditPackage: false,
             packages: [],
+            editPackageData: {},
         }
     },
     methods: {
@@ -87,7 +88,8 @@ export default {
                 })
         },
         editPackage(data) {
-            this.showPackageList = data.packageList;
+            this.editPackageData = data.tourPackage;
+            this.showPackageList = data.showPackageList;
             this.showEditPackage = true;
         }
     },

@@ -58,7 +58,7 @@ export default {
     },
     methods: {
         editPackageData(tour){
-            this.$emit('editPackageData', {tour, packageList: false})
+            this.$emit('editPackageData', {tourPackage:tour, showPackageList: false})
         }
     }
 }
