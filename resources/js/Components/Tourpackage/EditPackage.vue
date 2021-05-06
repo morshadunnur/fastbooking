@@ -35,6 +35,21 @@
                                placeholder="Place Name">
 
                     </div>
+                    <div class="w-1/2 px-3 mb-6 md:mb-0">
+                        <div>
+                            <img :src="editPackageData.feature_image" alt="" class="w-12">
+                        </div>
+                        <div class="w-full px-3 mb-6 md:mb-0">
+                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                                   for="feature_image">
+                                Feature Image
+                            </label>
+                            <input class="fastbooking-input" id="feature_image" @change="setUpdateImage"
+                                   type="file">
+
+                        </div>
+
+                    </div>
 
 
                 </div>
@@ -81,6 +96,7 @@ export default {
         return {
             categories: [],
             sending: false,
+            editFeatureImage: '',
         }
     },
     props: {
@@ -103,17 +119,20 @@ export default {
                     console.log(error.message);
                 })
         },
+        setUpdateImage(event){
+            this.editFeatureImage = event.target.files[0];
+        },
         updateTourPackage() {
-
+            let formData = new FormData();
+            formData.append('package_id', this.editPackageData.id);
+            formData.append('category_id', this.editPackageData.category_id);
+            formData.append('package_title', this.editPackageData.title);
+            formData.append('place_name', this.editPackageData.place_name);
+            formData.append('duration', this.editPackageData.duration);
+            formData.append('descriptions', this.editPackageData.descriptions);
+            formData.append('feature_image', this.editFeatureImage);
             this.sending = true;
-            axios.patch(this.route('tour.package.update'), {
-                'package_id': this.editPackageData.id,
-                'category_id': this.editPackageData.category_id,
-                'package_title': this.editPackageData.title,
-                'place_name': this.editPackageData.place_name,
-                'duration': this.editPackageData.duration,
-                'descriptions': this.editPackageData.descriptions,
-            })
+            axios.post(this.route('tour.package.update'), formData)
                 .then(response => {
                     if (response.status === 204) {
                         this.sending = false;
