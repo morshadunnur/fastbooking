@@ -36,7 +36,7 @@
                             @click="changeFormVisibility">Package List
                         </button>
                     </div>
-                    <EditPackage :editPackageData="editPackageData"/>
+                    <EditPackage :editPackageData="editPackageData" @loadPackages="getPackages;showEditPackage=false;showPackageList=true"/>
                 </div>
 
 
@@ -91,6 +91,11 @@ export default {
             this.editPackageData = data.tourPackage;
             this.showPackageList = data.showPackageList;
             this.showEditPackage = true;
+        },
+        defaultComponent(){
+            this.showPackageList = true;
+            this.showCreateForm = false;
+            this.showEditPackage = false;
         }
     },
     created() {

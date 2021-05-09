@@ -136,6 +136,7 @@ export default {
                 .then(response => {
                     if (response.status === 204) {
                         this.sending = false;
+                        this.$emit('loadPackages');
                     }
                 })
                 .catch(error => {
