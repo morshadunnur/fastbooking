@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TourPackage;
+use App\Presenter\TourPackagePresenter;
 use App\Traits\UploadFile;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -56,6 +57,7 @@ class TourPackageController extends Controller
                     'thumb'    => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.thumb') . $uploaded['file_name'],
                 ];
             }
+
             TourPackage::create([
                 'category_id'   => $data['category_id'],
                 'title'         => $data['package_title'],
@@ -88,9 +90,11 @@ class TourPackageController extends Controller
                 ->orderBy('place_name', 'asc')
                 ->get();
 
-            return response()->json([
-                'packages' => $tour_packages
-            ], 200);
+            return TourPackagePresenter::fetchList($tour_packages);
+
+//            return response()->json([
+//                'packages' => $tour_packages
+//            ], 200);
         } catch (QueryException | \Exception $e) {
             dd($e->getMessage());
             return response()->json('Something went wrong!', 406);
@@ -102,30 +106,41 @@ class TourPackageController extends Controller
     public function update(Request $request)
     {
         try {
-            $validated   = $this->validate($request, [
-                'package_id'    => 'required|integer|exists:tour_packages,id',
-                'package_title' => 'required|string|max:255',
-                'place_name'    => 'required|string|max:255',
-                'duration'      => 'required|string|max:255',
-                'descriptions'  => 'nullable|string',
-                'category_id'   => 'required|integer|exists:categories,id',
-                'feature_image' => 'nullable|image|mimes:jpg,jpeg,png,svg|max:10248'
+            $validated     = $this->validate($request, [
+                'package_id'      => 'required|integer|exists:tour_packages,id',
+                'package_title'   => 'required|string|max:255',
+                'place_name'      => 'required|string|max:255',
+                'duration'        => 'required|string|max:255',
+                'descriptions'    => 'nullable|string',
+                'category_id'     => 'required|integer|exists:categories,id',
+                'feature_image'   => 'nullable|image|mimes:jpg,jpeg,png,svg|max:10248',
+                'gallery_images'   => 'nullable|array|max:20',
+                'gallery_images.*' => 'image|mimes:jpg,jpeg,png,svg|max:10248',
             ]);
-            $tourPackage = TourPackage::find($validated['package_id']);
+            $tourPackage   = TourPackage::find($validated['package_id']);
             $feature_image = [];
-            if ($request->hasFile('feature_image')){
-                $feature_image  = tap(self::uploadSingleImage($validated['feature_image'], config('fastbooking.tour_package_image.original'), 'public', true, 200), function ($value) {
+            if ($request->hasFile('feature_image')) {
+                $feature_image = tap(self::uploadSingleImage($validated['feature_image'], config('fastbooking.tour_package_image.original'), 'public', true, 200), function ($value) {
                     return $value['file_name'];
 //                $feature_image =  config('fastbooking.tour_package_image.base_path').config('fastbooking.tour_package_image.original').$value['file_name'];
                 });
             }
+            $gallery_images = [];
+            foreach ($validated['gallery_images'] as $gallery) {
+                $uploaded         = self::uploadSingleImage($gallery, config('fastbooking.tour_package_image.original'), 'public', true);
+                $gallery_images[] = [
+                    'original' => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $uploaded['file_name'],
+                    'thumb'    => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.thumb') . $uploaded['file_name'],
+                ];
+            }
             $tourPackage->update([
-                'title'        => $validated['package_title'],
-                'place_name'   => $validated['place_name'],
-                'duration'     => $validated['duration'],
-                'descriptions' => $validated['descriptions'],
-                'category_id'  => $validated['category_id'],
+                'title'         => $validated['package_title'],
+                'place_name'    => $validated['place_name'],
+                'duration'      => $validated['duration'],
+                'descriptions'  => $validated['descriptions'],
+                'category_id'   => $validated['category_id'],
                 'feature_image' => array_key_exists('file_name', $feature_image) ? config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $feature_image['file_name'] : $tourPackage->feature_image,
+                'gallery'       => count($gallery_images) > 0 ? json_encode($gallery_images, true) : $tourPackage->gallery,
             ]);
             return response()->json('update successful', 204);
         } catch (ValidationException $e) {

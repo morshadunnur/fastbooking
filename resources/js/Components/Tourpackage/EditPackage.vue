@@ -51,6 +51,20 @@
 
                     </div>
 
+                    <div class="w-1/2 px-3 mb-6 md:mb-0">
+
+                        <div class="w-full px-3 mb-6 md:mb-0">
+                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                                   for="feature_image">
+                                Gallery Image
+                            </label>
+                            <input class="fastbooking-input" id="gallery_image" @change="setGalleryImages"
+                                   type="file" accept="image/*" multiple>
+
+                        </div>
+
+                    </div>
+
 
                 </div>
                 <div class="flex flex-col md:w-1/2">
@@ -97,6 +111,7 @@ export default {
             categories: [],
             sending: false,
             editFeatureImage: '',
+            editGalleryImage: [],
         }
     },
     props: {
@@ -122,6 +137,11 @@ export default {
         setUpdateImage(event){
             this.editFeatureImage = event.target.files[0];
         },
+        setGalleryImages(event){
+            for (let value of event.target.files){
+                this.editGalleryImage.push(value);
+            }
+        },
         updateTourPackage() {
             let formData = new FormData();
             formData.append('package_id', this.editPackageData.id);
@@ -131,16 +151,25 @@ export default {
             formData.append('duration', this.editPackageData.duration);
             formData.append('descriptions', this.editPackageData.descriptions);
             formData.append('feature_image', this.editFeatureImage);
+            for(let gallery of this.editGalleryImage){
+                formData.append('gallery_images[]', gallery);
+            }
+            this.editFeatureImage++;
+            this.editGalleryImage++;
             this.sending = true;
             axios.post(this.route('tour.package.update'), formData)
                 .then(response => {
                     if (response.status === 204) {
                         this.sending = false;
+                        this.editFeatureImage = 0;
+                        this.editGalleryImage = 0;
                         this.$emit('loadPackages');
                     }
                 })
                 .catch(error => {
                     this.sending = false;
+                    this.editFeatureImage = 0;
+                    this.editGalleryImage = 0;
                 })
 
         }
