@@ -133,6 +133,7 @@ class TourPackageController extends Controller
                     'thumb'    => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.thumb') . $uploaded['file_name'],
                 ];
             }
+
             $tourPackage->update([
                 'title'         => $validated['package_title'],
                 'place_name'    => $validated['place_name'],
@@ -140,7 +141,7 @@ class TourPackageController extends Controller
                 'descriptions'  => $validated['descriptions'],
                 'category_id'   => $validated['category_id'],
                 'feature_image' => array_key_exists('file_name', $feature_image) ? config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $feature_image['file_name'] : $tourPackage->feature_image,
-                'gallery'       => count($gallery_images) > 0 ? json_encode($gallery_images, true) : $tourPackage->gallery,
+                'gallery'       => count($gallery_images) > 0 ? json_encode(array_merge(json_decode($tourPackage->gallery, true), $gallery_images), true) : $tourPackage->gallery,
             ]);
             return response()->json('update successful', 204);
         } catch (ValidationException $e) {
@@ -151,3 +152,8 @@ class TourPackageController extends Controller
         }
     }
 }
+
+
+
+//3. jodi ager ta delte kore notun add korte parbe
+//4. ager sobgula delete korte parbe

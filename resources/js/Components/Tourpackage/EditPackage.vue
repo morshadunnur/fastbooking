@@ -63,6 +63,10 @@
 
                         </div>
 
+                        <div class="w-full px-3 mb-6 md:mb-0">
+                            <img :src="galleryImage.original" alt="" v-for="(galleryImage, imageIndex) in editPackageData.gallery" :key="imageIndex">
+                        </div>
+
                     </div>
 
 
