@@ -63,8 +63,13 @@
 
                         </div>
 
-                        <div class="w-full px-3 mb-6 md:mb-0">
-                            <img :src="galleryImage.original" alt="" v-for="(galleryImage, imageIndex) in editPackageData.gallery" :key="imageIndex">
+                        <div class="w-full px-3 mb-6 md:mb-0" v-for="(galleryImage, imageIndex) in editPackageData.gallery" :key="imageIndex">
+                            <div style="z-index: 999; position: absolute">
+                                <DeleteIcon @click="deleteGalleryImage(galleryImage.original)" style="cursor: pointer"/>
+                            </div>
+                            <div>
+                                <img :src="galleryImage.original" alt="" >
+                            </div>
                         </div>
 
                     </div>
@@ -108,6 +113,7 @@
 </template>
 
 <script>
+import {DeleteIcon} from 'vue-feather-icons';
 export default {
     name: "EditPackage",
     data() {
@@ -117,6 +123,9 @@ export default {
             editFeatureImage: '',
             editGalleryImage: [],
         }
+    },
+    components: {
+      DeleteIcon
     },
     props: {
         editPackageData: {
@@ -176,6 +185,22 @@ export default {
                     this.editGalleryImage = 0;
                 })
 
+        },
+
+        deleteGalleryImage(image){
+            axios.post(this.route('tour.package.image.remove'), {
+                package_id: this.editPackageData.id,
+                image: image
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        console.log(response.data);
+                        this.editPackageData.gallery = response.data.gallery;
+                    }
+                })
+                .catch(error => {
+                    console.log(error.message);
+                })
         }
     },
     created() {

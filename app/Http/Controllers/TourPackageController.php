@@ -91,7 +91,6 @@ class TourPackageController extends Controller
                 ->get();
 
             return TourPackagePresenter::fetchList($tour_packages);
-
 //            return response()->json([
 //                'packages' => $tour_packages
 //            ], 200);
@@ -151,9 +150,36 @@ class TourPackageController extends Controller
             return response()->json('Something went wrong', 406);
         }
     }
+
+    public function imageRemove(Request $request)
+    {
+        try {
+            $validatedData = $this->validate($request, [
+               'package_id' => 'required|integer|exists:tour_packages,id',
+               'image' => 'required|string|max:255'
+            ]);
+
+            $package = TourPackage::find($validatedData['package_id']);
+            $gallery_images = json_decode($package->gallery, true);
+            foreach ($gallery_images as $key => $image){
+                if ($validatedData['image'] == $image['original']){
+                    unset($gallery_images[$key]);
+                    break;
+                }
+            }
+            $package->update([
+                'gallery' => json_encode($gallery_images, true)
+            ]);
+            $package->gallery = json_decode($package->gallery, true);
+            return response()->json($package, 200);
+        }catch (ValidationException $e){
+            return response()->json($e->errors(), 422);
+        } catch (QueryException | \Exception $e) {
+            dd($e->getMessage());
+            return response()->json('Something went wrong!', 406);
+        }
+
+    }
 }
 
 
-
-//3. jodi ager ta delte kore notun add korte parbe
-//4. ager sobgula delete korte parbe

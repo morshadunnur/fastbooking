@@ -13,6 +13,10 @@ class TourPackage extends Model
     protected $table = 'tour_packages';
     protected $guarded = [];
 
+//    protected $casts = [
+//      'gallery' => 'array'
+//    ];
+
 
 
     public function category(): BelongsTo

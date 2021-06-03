@@ -35,4 +35,5 @@ Route::group(['middleware' => 'auth'], function()  {
     Route::get('tour-package-list', [TourPackageController::class, 'allTourPackage'])->name('tour.package.data');
     // set it post instead of put/patch request due to laravel cors issue
     Route::post('tour-package-update', [TourPackageController::class, 'update'])->name('tour.package.update');
+    Route::post('tour-package-image-remove', [TourPackageController::class, 'imageRemove'])->name('tour.package.image.remove');
 });

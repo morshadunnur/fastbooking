@@ -24,6 +24,7 @@
         "@inertiajs/inertia-vue": "^0.5.5",
         "@inertiajs/progress": "^0.2.4",
         "vue": "^2.6.12",
+        "vue-feather-icons": "^5.1.0",
         "vue-meta": "^2.4.0",
         "ziggy-js": "^1.0.5"
     }
