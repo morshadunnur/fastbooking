@@ -11,9 +11,12 @@ trait UploadFile
 {
     public function uploadSingleImage(UploadedFile $uploadedFile, string $folder ,string $disk = 'public', bool $resize = false,int $resize_value = 120)
     {
-        // Temp folder uploaded file save
-        $temp_upload = app()->basePath('public/uploads');
+        // Temp folder create and  uploaded file
 
+        if (!file_exists(base_path('/').'public/uploads')){
+            mkdir(base_path('/').'/public/uploads', 0777);
+        }
+        $temp_upload = app()->basePath('public/uploads');
         // filename set & remove space in filename
         $file_name = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $file_name = preg_replace("/[^A-Za-z0-9]/", '', $file_name);

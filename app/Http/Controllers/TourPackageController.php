@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\TourPackage;
+use App\Models\TourPackageImage;
 use App\Presenter\TourPackagePresenter;
 use App\Traits\UploadFile;
 use Illuminate\Database\QueryException;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -58,7 +62,7 @@ class TourPackageController extends Controller
                 ];
             }
 
-            TourPackage::create([
+            tap(TourPackage::create([
                 'category_id'   => $data['category_id'],
                 'title'         => $data['package_title'],
                 'place_name'    => $data['place_name'],
@@ -66,7 +70,15 @@ class TourPackageController extends Controller
                 'descriptions'  => $data['description'],
                 'feature_image' => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $feature_image['file_name'],
                 'gallery'       => json_encode($gallery_images, true),
-            ]);
+            ]), function ($tour_package) use($gallery_images) {
+                foreach ($gallery_images as $gallery_image){
+                    TourPackageImage::create([
+                        'tour_package_id' => $tour_package->id,
+                        'original' => $gallery_image['original'],
+                        'thumbnail' => $gallery_image['thumb']
+                    ]);
+                }
+            });
             return response()->json('Package Created', 200);
         } catch (ValidationException $e) {
             return response()->json($e->errors(), 422);
@@ -84,9 +96,11 @@ class TourPackageController extends Controller
             ];
 
             $tour_packages = TourPackage::select($selected_fields)
-                ->with(['category' => function ($category) {
+                ->with([
+                    'category' => function ($category) {
                     $category->select('id', 'name');
-                }])
+                }, 'images'
+                    ])
                 ->orderBy('place_name', 'asc')
                 ->get();
 
@@ -119,18 +133,32 @@ class TourPackageController extends Controller
             $tourPackage   = TourPackage::find($validated['package_id']);
             $feature_image = [];
             if ($request->hasFile('feature_image')) {
-                $feature_image = tap(self::uploadSingleImage($validated['feature_image'], config('fastbooking.tour_package_image.original'), 'public', true, 200), function ($value) {
+                $feature_image = tap(self::uploadSingleImage(
+                    $validated['feature_image'],
+                    config('fastbooking.tour_package_image.original'),
+                    'public',
+                    true,
+                    200
+                ), function ($value) use ($tourPackage) {
+
+                    Storage::disk('public')->delete(substr($tourPackage->feature_image, strlen(config('fastbooking.tour_package_image.base_path'))));
+
                     return $value['file_name'];
 //                $feature_image =  config('fastbooking.tour_package_image.base_path').config('fastbooking.tour_package_image.original').$value['file_name'];
                 });
+
+
             }
+            if (!$feature_image) throw new \Exception('File was too big');
             $gallery_images = [];
-            foreach ($validated['gallery_images'] as $gallery) {
-                $uploaded         = self::uploadSingleImage($gallery, config('fastbooking.tour_package_image.original'), 'public', true);
-                $gallery_images[] = [
-                    'original' => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $uploaded['file_name'],
-                    'thumb'    => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.thumb') . $uploaded['file_name'],
-                ];
+            if(array_key_exists('gallery_images', $validated)){
+                foreach ($validated['gallery_images'] as $gallery) {
+                    $uploaded         = self::uploadSingleImage($gallery, config('fastbooking.tour_package_image.original'), 'public', true);
+                    $gallery_images[] = [
+                        'original' => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $uploaded['file_name'],
+                        'thumb'    => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.thumb') . $uploaded['file_name'],
+                    ];
+                }
             }
 
             $tourPackage->update([

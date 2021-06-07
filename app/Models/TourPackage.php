@@ -31,7 +31,7 @@ class TourPackage extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(TourPackageImage::class);
+        return $this->hasMany(TourPackageImage::class, 'tour_package_id');
     }
 
 }
