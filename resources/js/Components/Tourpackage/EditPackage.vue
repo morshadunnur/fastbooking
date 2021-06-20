@@ -63,12 +63,13 @@
 
                         </div>
 
-                        <div class="w-full px-3 mb-6 md:mb-0" v-for="(galleryImage, imageIndex) in editPackageData.gallery" :key="imageIndex">
+                        <div class="w-full px-3 mb-6 md:mb-0"
+                             v-for="(galleryImage, imageIndex) in editPackageData.images" :key="imageIndex">
                             <div style="z-index: 999; position: absolute">
                                 <DeleteIcon @click="deleteGalleryImage(galleryImage.original)" style="cursor: pointer"/>
                             </div>
                             <div>
-                                <img :src="galleryImage.original" alt="" >
+                                <img :src="galleryImage.original" alt="">
                             </div>
                         </div>
 
@@ -114,6 +115,7 @@
 
 <script>
 import {DeleteIcon} from 'vue-feather-icons';
+
 export default {
     name: "EditPackage",
     data() {
@@ -125,7 +127,7 @@ export default {
         }
     },
     components: {
-      DeleteIcon
+        DeleteIcon
     },
     props: {
         editPackageData: {
@@ -147,11 +149,11 @@ export default {
                     console.log(error.message);
                 })
         },
-        setUpdateImage(event){
+        setUpdateImage(event) {
             this.editFeatureImage = event.target.files[0];
         },
-        setGalleryImages(event){
-            for (let value of event.target.files){
+        setGalleryImages(event) {
+            for (let value of event.target.files) {
                 this.editGalleryImage.push(value);
             }
         },
@@ -164,7 +166,7 @@ export default {
             formData.append('duration', this.editPackageData.duration);
             formData.append('descriptions', this.editPackageData.descriptions);
             formData.append('feature_image', this.editFeatureImage);
-            for(let gallery of this.editGalleryImage){
+            for (let gallery of this.editGalleryImage) {
                 formData.append('gallery_images[]', gallery);
             }
             this.editFeatureImage++;
@@ -178,16 +180,27 @@ export default {
                         this.editGalleryImage = 0;
                         this.$emit('loadPackages');
                     }
+
                 })
                 .catch(error => {
-                    this.sending = false;
-                    this.editFeatureImage = 0;
-                    this.editGalleryImage = 0;
+                    switch (error.response.status) {
+                        case 406:
+                            this.sending = false;
+                            this.editFeatureImage = 0;
+                            this.editGalleryImage = 0;
+                            this.$emit('loadPackages');
+                            break;
+                        default:
+                            this.sending = false;
+                            this.editFeatureImage = 0;
+                            this.editGalleryImage = 0;
+
+                    }
                 })
 
         },
 
-        deleteGalleryImage(image){
+        deleteGalleryImage(image) {
             axios.post(this.route('tour.package.image.remove'), {
                 package_id: this.editPackageData.id,
                 image: image

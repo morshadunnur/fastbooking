@@ -10,6 +10,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -47,7 +48,6 @@ class TourPackageController extends Controller
                 'gallery_images'   => ['nullable', 'array', 'max:20'],
                 'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,svg', 'max:12048']
 
-
             ]);
             $feature_image  = tap(self::uploadSingleImage($data['feature_image'], config('fastbooking.tour_package_image.original'), 'public', true, 200), function ($value) {
                 return $value['file_name'];
@@ -83,7 +83,11 @@ class TourPackageController extends Controller
         } catch (ValidationException $e) {
             return response()->json($e->errors(), 422);
         } catch (QueryException | \Exception $e) {
-            dd($e->getMessage());
+            Log::info('update error', [
+                'message' => $e->getMessage(),
+                'filename' => $e->getFile(),
+                'line no' => $e->getLine()
+            ]);
             return response()->json('Something went wrong!', 406);
         }
     }
@@ -92,7 +96,7 @@ class TourPackageController extends Controller
     {
         try {
             $selected_fields = [
-                'id', 'category_id', 'place_name', 'duration', 'feature_image', 'gallery', 'descriptions', 'title'
+                'id', 'category_id', 'place_name', 'duration', 'feature_image', 'descriptions', 'title'
             ];
 
             $tour_packages = TourPackage::select($selected_fields)
@@ -109,7 +113,7 @@ class TourPackageController extends Controller
 //                'packages' => $tour_packages
 //            ], 200);
         } catch (QueryException | \Exception $e) {
-            dd($e->getMessage());
+
             return response()->json('Something went wrong!', 406);
         }
 
@@ -133,7 +137,7 @@ class TourPackageController extends Controller
             $tourPackage   = TourPackage::find($validated['package_id']);
             $feature_image = [];
             if ($request->hasFile('feature_image')) {
-                $feature_image = tap(self::uploadSingleImage(
+                $feature_image = tap($this->uploadSingleImage(
                     $validated['feature_image'],
                     config('fastbooking.tour_package_image.original'),
                     'public',
@@ -146,14 +150,15 @@ class TourPackageController extends Controller
                     return $value['file_name'];
 //                $feature_image =  config('fastbooking.tour_package_image.base_path').config('fastbooking.tour_package_image.original').$value['file_name'];
                 });
-
-
+                if (!$feature_image) {
+                    throw new \Exception('File was too big');
+                }
             }
-            if (!$feature_image) throw new \Exception('File was too big');
+
             $gallery_images = [];
             if(array_key_exists('gallery_images', $validated)){
                 foreach ($validated['gallery_images'] as $gallery) {
-                    $uploaded         = self::uploadSingleImage($gallery, config('fastbooking.tour_package_image.original'), 'public', true);
+                    $uploaded         = $this->uploadSingleImage($gallery, config('fastbooking.tour_package_image.original'), 'public', true);
                     $gallery_images[] = [
                         'original' => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $uploaded['file_name'],
                         'thumb'    => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.thumb') . $uploaded['file_name'],
@@ -161,6 +166,7 @@ class TourPackageController extends Controller
                 }
             }
 
+            $count_gallery_image = count($gallery_images);
             $tourPackage->update([
                 'title'         => $validated['package_title'],
                 'place_name'    => $validated['place_name'],
@@ -168,13 +174,28 @@ class TourPackageController extends Controller
                 'descriptions'  => $validated['descriptions'],
                 'category_id'   => $validated['category_id'],
                 'feature_image' => array_key_exists('file_name', $feature_image) ? config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $feature_image['file_name'] : $tourPackage->feature_image,
-                'gallery'       => count($gallery_images) > 0 ? json_encode(array_merge(json_decode($tourPackage->gallery, true), $gallery_images), true) : $tourPackage->gallery,
+                'gallery'       => $count_gallery_image ? json_encode(array_merge(json_decode($tourPackage->gallery, true), $gallery_images), true) : $tourPackage->gallery,
             ]);
+            if ($count_gallery_image > 0){
+                foreach ($gallery_images as $gallery_image){
+                    TourPackageImage::create([
+                        'tour_package_id' => $tourPackage->id,
+                        'original' => $gallery_image['original'],
+                        'thumbnail' => $gallery_image['thumb'],
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+            }
             return response()->json('update successful', 204);
         } catch (ValidationException $e) {
             return response()->json($e->errors(), 422);
         } catch (QueryException | \Exception $e) {
-            dd($e->getMessage());
+            Log::info('update error', [
+                    'message' => $e->getMessage(),
+                    'filename' => $e->getFile(),
+                    'line no' => $e->getLine()
+            ]);
             return response()->json('Something went wrong', 406);
         }
     }
@@ -203,7 +224,11 @@ class TourPackageController extends Controller
         }catch (ValidationException $e){
             return response()->json($e->errors(), 422);
         } catch (QueryException | \Exception $e) {
-            dd($e->getMessage());
+            Log::info('update error', [
+                'message' => $e->getMessage(),
+                'filename' => $e->getFile(),
+                'line no' => $e->getLine()
+            ]);
             return response()->json('Something went wrong!', 406);
         }
 
