@@ -25,7 +25,7 @@
                             @click="changeFormVisibility">Create Package
                         </button>
                     </div>
-                    <PackageList :packageList="packages" @loadPackages="getPackages" @editPackageData="editPackage"/>
+                    <PackageList :packageList="packages" @loadPackages="getPackages()" @editPackageData="editPackage"/>
                 </div>
 
                 <div class="w-full bg-green-100-200 p-5" v-if="showEditPackage">
@@ -36,7 +36,7 @@
                             @click="changeFormVisibility">Package List
                         </button>
                     </div>
-                    <EditPackage :editPackageData="editPackageData" @loadPackages="getPackages;showEditPackage=false;showPackageList=true"/>
+                    <EditPackage :editPackageData="editPackageData" @loadPackages="getPackages();showEditPackage=false;showPackageList=true"/>
                 </div>
 
 
@@ -76,6 +76,7 @@ export default {
             }
         },
         getPackages() {
+            console.log('Called');
             axios.get(this.route('tour.package.data'))
                 .then(response => {
                     if (response.status === 200) {

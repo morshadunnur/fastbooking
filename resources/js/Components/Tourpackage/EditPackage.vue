@@ -66,7 +66,7 @@
                         <div class="w-full px-3 mb-6 md:mb-0"
                              v-for="(galleryImage, imageIndex) in editPackageData.images" :key="imageIndex">
                             <div style="z-index: 999; position: absolute">
-                                <DeleteIcon @click="deleteGalleryImage(galleryImage.original)" style="cursor: pointer"/>
+                                <DeleteIcon @click="deleteGalleryImage(galleryImage.id)" style="cursor: pointer"/>
                             </div>
                             <div>
                                 <img :src="galleryImage.original" alt="">
@@ -202,13 +202,11 @@ export default {
 
         deleteGalleryImage(image) {
             axios.post(this.route('tour.package.image.remove'), {
-                package_id: this.editPackageData.id,
-                image: image
+                image_id: image,
             })
                 .then(response => {
                     if (response.status === 200) {
-                        console.log(response.data);
-                        this.editPackageData.gallery = response.data.gallery;
+                        this.editPackageData.images = response.data.images.images;
                     }
                 })
                 .catch(error => {

@@ -8,6 +8,7 @@ use App\Presenter\TourPackagePresenter;
 use App\Traits\UploadFile;
 use Illuminate\Database\QueryException;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -69,7 +70,7 @@ class TourPackageController extends Controller
                 'duration'      => $data['duration'],
                 'descriptions'  => $data['description'],
                 'feature_image' => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $feature_image['file_name'],
-                'gallery'       => json_encode($gallery_images, true),
+//                'gallery'       => json_encode($gallery_images, true),
             ]), function ($tour_package) use($gallery_images) {
                 foreach ($gallery_images as $gallery_image){
                     TourPackageImage::create([
@@ -174,7 +175,7 @@ class TourPackageController extends Controller
                 'descriptions'  => $validated['descriptions'],
                 'category_id'   => $validated['category_id'],
                 'feature_image' => array_key_exists('file_name', $feature_image) ? config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $feature_image['file_name'] : $tourPackage->feature_image,
-                'gallery'       => $count_gallery_image ? json_encode(array_merge(json_decode($tourPackage->gallery, true), $gallery_images), true) : $tourPackage->gallery,
+//                'gallery'       => $count_gallery_image ? json_encode(array_merge(json_decode($tourPackage->gallery, true), $gallery_images), true) : $tourPackage->gallery,
             ]);
             if ($count_gallery_image > 0){
                 foreach ($gallery_images as $gallery_image){
@@ -200,7 +201,30 @@ class TourPackageController extends Controller
         }
     }
 
-    public function imageRemove(Request $request)
+    public function imageRemoveFromGallery(Request $request): JsonResponse
+    {
+        try {
+            $validatedData = $this->validate($request, [
+                'image_id' => 'required|integer|exists:tour_package_images,id'
+            ]);
+            $tour_package_image = TourPackageImage::find($validatedData['image_id']);
+            $package_id = $tour_package_image->tour_package_id;
+            TourPackageImage::destroy($validatedData['image_id']);
+            $images = TourPackage::where('id', $package_id)->with([
+                'category' => function ($category) {
+                    $category->select('id', 'name');
+                }, 'images'
+            ])->orderBy('place_name', 'asc')->first();
+            return response()->json(['images' => $images]);
+        }catch (ValidationException $e) {
+            return response()->json($e->errors(), 422);
+        }catch (QueryException|\Exception $e){
+            return response()->json('Something went wrong', 406);
+        }
+
+    }
+    // Remove image from tour package table gallery column
+    public function imageRemove(Request $request): JsonResponse
     {
         try {
             $validatedData = $this->validate($request, [
@@ -233,6 +257,7 @@ class TourPackageController extends Controller
         }
 
     }
+
 }
 
 
