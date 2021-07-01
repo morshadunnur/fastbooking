@@ -29,6 +29,7 @@ Route::group(['middleware' => 'auth'], function()  {
 
     Route::get('tour-package', [TourPackageController::class, 'index'])->name('tour.package.page');
     Route::post('tour-package', [TourPackageController::class, 'store'])->name('tour.package.store');
+    Route::post('tour-package-delete', [TourPackageController::class, 'delete'])->name('tour.package.delete');
 
     // DATA Routes
     Route::get('category-list', [CategoryController::class, 'allCategory'])->name('category.list.data');

@@ -22,6 +22,7 @@ class CreateTourPackagesTable extends Migration
             $table->string('feature_image')->nullable();
             $table->json('gallery')->nullable();
             $table->string('descriptions')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

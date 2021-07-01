@@ -258,6 +258,21 @@ class TourPackageController extends Controller
 
     }
 
+    public function delete(Request $request)
+    {
+        try{
+            $ids = $this->validate($request, [
+               'packages' => 'required|array|min:1',
+               'packages.*' => 'required|integer|exists:tour_packages,id',
+            ]);
+            TourPackage::destroy($ids['packages']);
+            return response()->json('deleted');
+        }catch (ValidationException $e){
+            return response()->json($e->errors(), 422);
+        }
+
+    }
+
 }
 
 

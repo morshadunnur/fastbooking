@@ -25,7 +25,7 @@
                             @click="changeFormVisibility">Create Package
                         </button>
                     </div>
-                    <PackageList :packageList="packages" @loadPackages="getPackages()" @editPackageData="editPackage"/>
+                    <PackageList :packageList="packages" @loadPackages="getPackages()" @editPackageData="editPackage" @deletePackageData="deletePackage"/>
                 </div>
 
                 <div class="w-full bg-green-100-200 p-5" v-if="showEditPackage">
@@ -92,6 +92,25 @@ export default {
             this.editPackageData = data.tourPackage;
             this.showPackageList = data.showPackageList;
             this.showEditPackage = true;
+        },
+        deletePackage(data){
+            this.showPackageList = true;
+            console.log('delete data received', data);
+            axios.post(this.route('tour.package.delete'), {
+                packages: [
+                    data.tourPackage.id
+                ]
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        console.log(response.data);
+                        this.getPackages();
+                    }
+                })
+                .catch(error => {
+                    console.log(error.message);
+                })
+
         },
         defaultComponent(){
             this.showPackageList = true;
