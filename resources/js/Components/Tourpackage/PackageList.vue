@@ -78,7 +78,8 @@ export default {
             this.$emit('deletePackageData', {tourPackage:tour, showPackageList: true})
         },
         deleteAllPackageData(){
-
+            this.selectAll = false;
+            this.$emit('deleteAllPackageData', {packages: this.selected, showPackageList: true})
         },
         select(){
             this.selected = [];

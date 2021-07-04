@@ -55,12 +55,14 @@ class TourPackageController extends Controller
 //                $feature_image =  config('fastbooking.tour_package_image.base_path').config('fastbooking.tour_package_image.original').$value['file_name'];
             });
             $gallery_images = [];
-            foreach ($data['gallery_images'] as $gallery) {
-                $uploaded         = $this->uploadSingleImage($gallery, config('fastbooking.tour_package_image.original'), 'public', true);
-                $gallery_images[] = [
-                    'original' => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $uploaded['file_name'],
-                    'thumb'    => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.thumb') . $uploaded['file_name'],
-                ];
+            if (array_key_exists('gallery_images', $data)){
+                foreach ($data['gallery_images'] as $gallery) {
+                    $uploaded         = $this->uploadSingleImage($gallery, config('fastbooking.tour_package_image.original'), 'public', true);
+                    $gallery_images[] = [
+                        'original' => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $uploaded['file_name'],
+                        'thumb'    => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.thumb') . $uploaded['file_name'],
+                    ];
+                }
             }
 
             tap(TourPackage::create([
@@ -71,13 +73,15 @@ class TourPackageController extends Controller
                 'descriptions'  => $data['description'],
                 'feature_image' => config('fastbooking.tour_package_image.base_path') . config('fastbooking.tour_package_image.original') . $feature_image['file_name'],
 //                'gallery'       => json_encode($gallery_images, true),
-            ]), function ($tour_package) use($gallery_images) {
-                foreach ($gallery_images as $gallery_image){
-                    TourPackageImage::create([
-                        'tour_package_id' => $tour_package->id,
-                        'original' => $gallery_image['original'],
-                        'thumbnail' => $gallery_image['thumb']
-                    ]);
+            ]), static function ($tour_package) use($gallery_images) {
+                if (count($gallery_images) > 0){
+                    foreach ($gallery_images as $gallery_image){
+                        TourPackageImage::create([
+                            'tour_package_id' => $tour_package->id,
+                            'original' => $gallery_image['original'],
+                            'thumbnail' => $gallery_image['thumb']
+                        ]);
+                    }
                 }
             });
             return response()->json('Package Created', 200);
